@@ -25,5 +25,5 @@ def read_dataset(file_name):
 
 
 if __name__ == '__main__':
-    print(read_dataset('dataset_2_9.txt'))
+    print(frequent_words('TAAACGTGAGAGAAACGTGCTGATTACACTTGTTCGTGTGGTAT', 3))
 

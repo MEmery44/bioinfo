@@ -13,4 +13,4 @@ def read_dataset(file_name):
         return pattern_count(lines[0].strip(), lines[1].strip())
 
 if __name__ == '__main__':
-    print(read_dataset('dataset_2_6.txt'))
+    print(pattern_count('CGCGATACGTTACATACATGATAGACCGCGCGCGATCATATCGCGATTATC', 'CGCG'))
