@@ -23,8 +23,4 @@ def min_skew(*skew_list):
     return ' '.join(str(x) for x in min_list)
 
 if __name__ == '__main__':
-    with open('dataset_7_6.txt') as data:
-        line1 = data.read()
-    skew_list = make_skew(line1)
-    skew = min_skew(*skew_list)
-    print(skew)
+    print(make_skew('GCATACACTTCCCAGTAGGTACTG'))

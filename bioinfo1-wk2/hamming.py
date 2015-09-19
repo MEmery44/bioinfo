@@ -9,7 +9,4 @@ def get_hamming_distance(first_string, second_string):
     return distance
 
 if __name__ == '__main__':
-    with open('dataset_9_3.txt') as data:
-        line1, line2 = data.readlines()
-    hamming = get_hamming_distance(line1.strip(), line2.strip())
-    print(hamming)
+    print(get_hamming_distance('CTTGAAGTGGACCTCTAGTTCCTCTACAAAGAACAGGTTGACCTGTCGCGAAG', 'ATGCCTTACCTAGATGCAATGACGGACGTATTCCTTTTGCCTCAACGGCTCCT'))

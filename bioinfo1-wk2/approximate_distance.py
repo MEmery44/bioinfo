@@ -29,9 +29,4 @@ def get_hamming_distance(first_string, second_string):
 
 
 if __name__ == '__main__':
-    with open('dataset_9_6.txt') as data:
-        line1, line2, line3 = data.readlines()
-    count = get_approximate_pattern_count(line1.strip(), line2.strip(), int(line3))
-    print(count)
-    # with open('output.txt', 'w+') as out:
-    #     out.write(match)
+    print(get_approximate_pattern_count('AA', 'TACGCATTACAAAGCACA', 1))

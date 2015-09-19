@@ -38,7 +38,6 @@ def return_spaced(*sequence):
     return ' '.join(sorted(sequence))
 
 
-
 def frequent_words_with_mismatches(text, k, d):
     frequent_patterns = set()
     close, frequency_array = [], []
@@ -65,7 +64,8 @@ def frequent_words_with_mismatches(text, k, d):
             frequent_patterns.add(pattern)
     return frequent_patterns
 
-def frequent_words_with_mismatches_w_mismatch(text, k, d):
+
+def frequent_words_with_mismatches_w_complement(text, k, d):
     frequent_patterns = set()
     close, frequency_array = [], []
     print('Step 1')
@@ -80,9 +80,12 @@ def frequent_words_with_mismatches_w_mismatch(text, k, d):
             close[index] = 1
     print('Step 3')
     for i in range(0, 4 ** k):
+        if i % 1000 == 0:
+            print(1)
         if close[i] == 1:
             pattern = number_to_pattern(i, k)
-            frequency_array[i] = get_approximate_pattern_count(pattern, text, d)
+            frequency_array[i] = get_approximate_pattern_count(pattern, text, d) + \
+                                 get_approximate_pattern_count(reverse_dna(pattern), text, d)
     max_count = max(frequency_array)
     print('Step 4')
     for i in range(0, 4 ** k):
@@ -90,6 +93,7 @@ def frequent_words_with_mismatches_w_mismatch(text, k, d):
             pattern = number_to_pattern(i, k)
             frequent_patterns.add(pattern)
     return frequent_patterns
+
 
 def reverse_dna(dna):
     dna_dict = {'A': 'T',
@@ -101,6 +105,7 @@ def reverse_dna(dna):
         new_dna.append(dna_dict[dna[i]])
     return ''.join(reversed(new_dna))
 
+
 if __name__ == '__main__':
-    freq = frequent_words_with_mismatches('ATCGCAATTACTATCGTACTATCGAGTGAGTATACTAGTGAGTGATCGAGTGATCGCAATAGTAATCGCAATATCGCAATATCGTACTAGTGAGTGTACTATCGTACTAGTGAGTGCAATCAATTACTAGTAATCGTACTAGTAATCGATCGAGTGCAATATCGAGTGTACTAGTAAGTGTACTAGTGTACTAGTAAGTGATCGATCGTACTCAATAGTGCAATAGTGAGTATACTAGTGAGTGATCGAGTGATCGATCGAGTATACTATCGATCGAGTACAATATCGTACTATCGATCGATCGCAATATCGCAATAGTAAGTAATCGAGTACAATAGTGAGTAAGTA', 7, 3)
-    print(return_spaced(*freq))
+    neighbourhood = neighbours('TGCAT', 2)
+    print(len(neighbourhood))
