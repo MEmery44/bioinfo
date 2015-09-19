@@ -1,10 +1,9 @@
-import hamming
+from hamming import get_hamming_distance
+from clump_finder import pattern_to_number, number_to_pattern
+from approximate_distance import get_approximate_pattern_count
 
 __author__ = 'memery'
 
-
-
-print(hamming.get_hamming_distance('ABC', 'ABD'))
 
 def immediate_neighbours(pattern):
     neighbourhood = {pattern}
@@ -17,6 +16,7 @@ def immediate_neighbours(pattern):
             neighbour[i] = nucleotide
             neighbourhood.add(''.join(neighbour))
     return neighbourhood
+
 
 def neighbours(pattern, d):
     if d == 0:
@@ -34,14 +34,73 @@ def neighbours(pattern, d):
     return neighbourhood
 
 
-def get_hamming_distance(first_string, second_string):
-    assert len(first_string) == len(second_string)
-    distance = 0
-    for i in range(len(first_string)):
-        if first_string[i] != second_string[i]:
-            distance += 1
-    return distance
+def return_spaced(*sequence):
+    return ' '.join(sorted(sequence))
 
+
+
+def frequent_words_with_mismatches(text, k, d):
+    frequent_patterns = set()
+    close, frequency_array = [], []
+    print('Step 1')
+    for i in range(0, 4 ** k):
+        close.append(0)
+        frequency_array.append(0)
+    print('Step 2')
+    for i in range(0, len(text) - k + 1):
+        neighbourhood = neighbours(text[i:i + k], d)
+        for pattern in neighbourhood:
+            index = pattern_to_number(pattern)
+            close[index] = 1
+    print('Step 3')
+    for i in range(0, 4 ** k):
+        if close[i] == 1:
+            pattern = number_to_pattern(i, k)
+            frequency_array[i] = get_approximate_pattern_count(pattern, text, d)
+    max_count = max(frequency_array)
+    print('Step 4')
+    for i in range(0, 4 ** k):
+        if frequency_array[i] == max_count:
+            pattern = number_to_pattern(i, k)
+            frequent_patterns.add(pattern)
+    return frequent_patterns
+
+def frequent_words_with_mismatches_w_mismatch(text, k, d):
+    frequent_patterns = set()
+    close, frequency_array = [], []
+    print('Step 1')
+    for i in range(0, 4 ** k):
+        close.append(0)
+        frequency_array.append(0)
+    print('Step 2')
+    for i in range(0, len(text) - k + 1):
+        neighbourhood = neighbours(text[i:i + k], d)
+        for pattern in neighbourhood:
+            index = pattern_to_number(pattern)
+            close[index] = 1
+    print('Step 3')
+    for i in range(0, 4 ** k):
+        if close[i] == 1:
+            pattern = number_to_pattern(i, k)
+            frequency_array[i] = get_approximate_pattern_count(pattern, text, d)
+    max_count = max(frequency_array)
+    print('Step 4')
+    for i in range(0, 4 ** k):
+        if frequency_array[i] == max_count:
+            pattern = number_to_pattern(i, k)
+            frequent_patterns.add(pattern)
+    return frequent_patterns
+
+def reverse_dna(dna):
+    dna_dict = {'A': 'T',
+                'C': 'G',
+                'G': 'C',
+                'T': 'A'}
+    new_dna = []
+    for i in range(len(dna)):
+        new_dna.append(dna_dict[dna[i]])
+    return ''.join(reversed(new_dna))
 
 if __name__ == '__main__':
-    print(immediate_neighbours('AAA'))
+    freq = frequent_words_with_mismatches('ATCGCAATTACTATCGTACTATCGAGTGAGTATACTAGTGAGTGATCGAGTGATCGCAATAGTAATCGCAATATCGCAATATCGTACTAGTGAGTGTACTATCGTACTAGTGAGTGCAATCAATTACTAGTAATCGTACTAGTAATCGATCGAGTGCAATATCGAGTGTACTAGTAAGTGTACTAGTGTACTAGTAAGTGATCGATCGTACTCAATAGTGCAATAGTGAGTATACTAGTGAGTGATCGAGTGATCGATCGAGTATACTATCGATCGAGTACAATATCGTACTATCGATCGATCGCAATATCGCAATAGTAAGTAATCGAGTACAATAGTGAGTAAGTA', 7, 3)
+    print(return_spaced(*freq))
