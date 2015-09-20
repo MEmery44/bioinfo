@@ -22,7 +22,7 @@ def make_graph(*edges):
 
 def add_eulerian_bridge(G):
     [start_node] = [x for x in G.in_degree() if G.in_degree(x) - G.out_degree(x) == 1]
-    [end_node] = choice([x for x in G.in_degree() if G.in_degree(x) - G.out_degree(x) == -1])
+    [end_node] = [x for x in G.in_degree() if G.in_degree(x) - G.out_degree(x) == -1]
     G.add_edge(start_node, end_node)
     cycle = eulerian_cycle(G)
     for i in range(len(cycle)):
@@ -82,26 +82,35 @@ def reconstruct_uni_string(k, graph):
     return reconstructed
 
 def make_double_string_graph(*double_kmers):
-    first_graph, second_graph = nx.DiGraph(), nx.DiGraph()
+    graph = nx.DiGraph()
     for double_kmer in double_kmers:
         first, second = double_kmer.strip().split('|')
-        first_graph.add_edge(first[:-1], first[1:])
-        second_graph.add_edge(second[:-1], second[1:])
-    return first_graph, second_graph
+        graph.add_edge((first[:-1], second[:-1]), (first[1:], second[1:]))
+    return graph
 
-def reconstruct_double_string(first_graph, second_graph, l, d):
-    first_path = reconstruct_string(first_graph)
-    second_path = reconstruct_string(second_graph)
-    reconstructed = '{}{}'.format(first_path, second_path[-d-l:])
+def reconstruct_double_string(graph, l, d):
+    path = add_eulerian_bridge(graph)
+    prefix_recon, suffix_recon = path[0][0][0], path[0][0][1]
+    for i in path:
+        prefix_recon = '{}{}'.format(prefix_recon, i[1][0][-1])
+        suffix_recon = '{}{}'.format(suffix_recon, i[1][1][-1])
+    reconstructed = '{}{}'.format(prefix_recon, suffix_recon[-d-l:])
     return reconstructed
 
 def generate_binary_strings(size):
     return [''.join(x) for x in product('01', repeat=int(size))]
 
+def max_non_contig(graph):
+    pass
+
 if __name__ == '__main__':
-    with open('dataset_6206_7.txt') as data:
+    with open('dataset_204_14.txt') as data:
         l, d = data.readline().split(' ')
         l, d = int(l), int(d)
-        graph1, graph2 = make_double_string_graph(*(x.strip() for x in data.readlines()))
+        graph = make_double_string_graph(*(x.strip() for x in data.readlines()))
     with open('output.txt', 'w+') as out:
-        out.write(reconstruct_double_string(graph1, graph2, l, d))
+        out.write(reconstruct_double_string(graph, l, d))
+    # graph = make_double_string_graph(*('GACC|GCGC', 'ACCG|CGCC', 'CCGA|GCCG', 'CGAG|CCGG', 'GAGC|CGGA'))
+    # answer = reconstruct_double_string(graph, 4, 2)
+    # print(answer)
+    # print('GACCGAGCGCCGGA')
