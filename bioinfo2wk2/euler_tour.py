@@ -4,6 +4,7 @@ import networkx as nx
 from itertools import product
 from random import choice
 
+
 def eulerian_cycle(graph):
     return [i for i in nx.eulerian_circuit(graph)]
 
@@ -33,6 +34,7 @@ def add_eulerian_bridge(G):
             break
     return cycle
 
+
 def add_random_eulerian_bridge(G):
     start_nodes = [x for x in G.in_degree() if G.in_degree(x) - G.out_degree(x) == 1]
     end_nodes = [x for x in G.in_degree() if G.in_degree(x) - G.out_degree(x) == -1]
@@ -54,6 +56,7 @@ def add_random_eulerian_bridge(G):
             break
     return cycle
 
+
 def print_eulerian(*euler):
     path = euler[0][0]
     for i in range(len(euler)):
@@ -61,8 +64,14 @@ def print_eulerian(*euler):
     return path
 
 
-def make_de_bruijin_graph(*kmers): #used to have a k. see if this matters
+def make_de_bruijin_graph(*kmers):  # used to have a k. see if this matters
     graph = nx.DiGraph()
+    for kmer in kmers:
+        graph.add_edge(kmer[:-1], kmer[1:])
+    return graph
+
+def make_multi_de_bruijin_graph(*kmers):  # used to have a k. see if this matters
+    graph = nx.MultiDiGraph()
     for kmer in kmers:
         graph.add_edge(kmer[:-1], kmer[1:])
     return graph
@@ -74,12 +83,14 @@ def reconstruct_string(graph):
         reconstructed = '{}{}'.format(reconstructed, i[1][-1])
     return reconstructed
 
+
 def reconstruct_uni_string(k, graph):
     cycle = eulerian_cycle(graph)
     reconstructed = cycle[0][0]
-    for i in cycle[:-k+1]:
+    for i in cycle[:-k + 1]:
         reconstructed = '{}{}'.format(reconstructed, i[1][-1])
     return reconstructed
+
 
 def make_double_string_graph(*double_kmers):
     graph = nx.DiGraph()
@@ -88,29 +99,77 @@ def make_double_string_graph(*double_kmers):
         graph.add_edge((first[:-1], second[:-1]), (first[1:], second[1:]))
     return graph
 
+
 def reconstruct_double_string(graph, l, d):
     path = add_eulerian_bridge(graph)
     prefix_recon, suffix_recon = path[0][0][0], path[0][0][1]
     for i in path:
         prefix_recon = '{}{}'.format(prefix_recon, i[1][0][-1])
         suffix_recon = '{}{}'.format(suffix_recon, i[1][1][-1])
-    reconstructed = '{}{}'.format(prefix_recon, suffix_recon[-d-l:])
+    reconstructed = '{}{}'.format(prefix_recon, suffix_recon[-d - l:])
     return reconstructed
+
 
 def generate_binary_strings(size):
     return [''.join(x) for x in product('01', repeat=int(size))]
 
-def max_non_contig(graph):
-    pass
+
+def max_non_contig(G):
+    paths = []
+    for v in G.nodes():
+        if G.in_degree(v) != 1 or G.out_degree(v) != 1:
+            if G.out_degree(v) > 0:
+                for w in G.successors(v):
+                    non_branching_path = [v, w]
+                    while G.in_degree(w) == 1 and G.out_degree(w) == 1:
+                        non_branching_path.extend(G.successors(w))
+                        w = G.successors(w)
+                    paths.append(non_branching_path)
+        else:
+            start_node = v
+            if G.out_degree(v) == 1:
+                for w in G.successors(v):
+                    cycle = [v, w]
+                    while G.in_degree(w) == 1 and G.out_degree(w) == 1:
+                        cycle.extend(G.successors(w))
+                        w = G.successors(w)
+                        if w == start_node:
+                            paths.append(cycle)
+    return paths
+
+def max_non_contig_w_edges(G):
+    paths = []
+    for v, w in G.edges():
+        if v == 'AAAAGCGCCGCGAAACTTTAGCCAACCGTCGCTAGTGACTTAGGTTGGAGACTAACTAAGTAAAAAA':
+            pass
+        if G.in_degree(v) != 1 or G.out_degree(v) != 1:
+            if G.out_degree(v) > 0:
+                for w in G.successors(v):
+                    non_branching_path = [v, w]
+                    while G.in_degree(w) == 1 and G.out_degree(w) == 1:
+                        non_branching_path.extend(G.successors(w))
+                        [w] = G.successors(w)
+                    paths.append(non_branching_path)
+        else:
+            start_node = v
+            if G.out_degree(v) == 1:
+                for w in G.successors(v):
+                    cycle = [v, w]
+                    while G.in_degree(w) == 1 and G.out_degree(w) == 1:
+                        cycle.extend(G.successors(w))
+                        w = G.successors(w)
+                        if w == start_node:
+                            paths.append(cycle)
+    return paths
+
+def printable_non_contigs(*contigs):
+    paths = []
+    for contig in sorted(contigs):
+        path = contig[0]
+        for suffix in contig[1:]:
+            path = '{}{}'.format(path, suffix[-1])
+        paths.append(path)
+    return paths
 
 if __name__ == '__main__':
-    with open('dataset_204_14.txt') as data:
-        l, d = data.readline().split(' ')
-        l, d = int(l), int(d)
-        graph = make_double_string_graph(*(x.strip() for x in data.readlines()))
-    with open('output.txt', 'w+') as out:
-        out.write(reconstruct_double_string(graph, l, d))
-    # graph = make_double_string_graph(*('GACC|GCGC', 'ACCG|CGCC', 'CCGA|GCCG', 'CGAG|CCGG', 'GAGC|CGGA'))
-    # answer = reconstruct_double_string(graph, 4, 2)
-    # print(answer)
-    # print('GACCGAGCGCCGGA')
+    pass
