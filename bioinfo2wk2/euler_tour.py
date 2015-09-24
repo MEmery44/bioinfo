@@ -140,8 +140,6 @@ def max_non_contig(G):
 def max_non_contig_w_edges(G):
     paths = []
     for v, w in G.edges():
-        if v == 'AAAAGCGCCGCGAAACTTTAGCCAACCGTCGCTAGTGACTTAGGTTGGAGACTAACTAAGTAAAAAA':
-            pass
         if G.in_degree(v) != 1 or G.out_degree(v) != 1:
             if G.out_degree(v) > 0:
                 for w in G.successors(v):
@@ -172,4 +170,7 @@ def printable_non_contigs(*contigs):
     return paths
 
 if __name__ == '__main__':
-    pass
+    with open('quiz_gap.txt') as data:
+        doubler_kmers = [x for x in data.readlines()]
+        graph = make_double_string_graph(*doubler_kmers)
+        print(reconstruct_double_string(graph, 3, 1))
