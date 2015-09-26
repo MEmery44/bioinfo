@@ -34,6 +34,19 @@ def median_string(dna, k):
     return median
 
 
+def test_median_string(dna, k):
+    medians = []
+    distance = float('infinity')
+    for pattern in generate_dna_strings(k):
+        if distance > distance_between_pattern_and_string(pattern, dna):
+            distance = distance_between_pattern_and_string(pattern, dna)
+            median = pattern
+            medians = [median]
+        elif distance == distance_between_pattern_and_string(pattern, dna):
+            medians.append(pattern)
+    return medians
+
+
 def generate_dna_strings(size):
     return [''.join(x) for x in product('ACGT', repeat=int(size))]
 
@@ -100,11 +113,8 @@ def greedy_motif_search(dna, k, t):
             best_motifs = motifs
     return best_motifs
 
+
 if __name__ == '__main__':
-    with open('greedy_pseudo.txt') as data:
-        k, t = data.readline().split(' ')
-        lines = [x.strip() for x in data.readlines()]
-    print('\n'.join(greedy_motif_search(lines, int(k), int(t))))
-    # print('\n'.join(['GTACATCTCTCT', 'GTCGATATCTCG', 'GTTGATATCTCG', 'GTAGGTATCTCT', 'GTGGATATCGCT', 'GTCGTTATCCCA', 'GTAGATATCCCT', 'GTGGTTATCACG', 'GTGGTTATCCCA', 'GTGGCTATCGCC', 'GTGGATATCCCT', 'GTCGTTATCACA', 'GTTGGTATCACT', 'GTTGATATCTCT', 'GTAGGTATCACC', 'GTGGCTATCGCT', 'GTGGGTATCTCA', 'GTCGATATCGCT', 'GTTGATATCTCC', 'GTTGGTATCACC', 'GTAGGTATCACT', 'GTCGTTATCCCG', 'GTAGGTACATCA', 'GTGGTTATCACC', 'GTTGTTATCGCA']))
-    # with open('greedy_out.txt') as out:
-    #     print(get_score([x.strip() for x in out.readlines()]))
+    print(test_median_string(['CTCGATGAGTAGGAAAGTAGTTTCACTGGGCGAACCACCCCGGCGCTAATCCTAGTGCCC',
+                              'GCAATCCTACCCGAGGCCACATATCAGTAGGAACTAGAACCACCACGGGTGGCTAGTTTC',
+                              'GGTGTTGAACCACGGGGTTAGTTTCATCTATTGTAGGAATCGGCTTCAAATCCTACACAG'], 7))
