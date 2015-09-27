@@ -1,7 +1,7 @@
 __author__ = 'memery'
 
-import difflib
 from itertools import chain, combinations
+from functools import lru_cache
 
 
 def translate_protein(rna_string):
@@ -75,13 +75,17 @@ MASS_DICT = {'G': 57,
              'Y': 163,
              'W': 186}
 
+MASS_LIST = [156, 186, 115, 113, 163, 128, 101, 57, 131, 87, 114, 129, 147, 99, 137, 97, 71, 103]
+
 
 def powerset(iterable):
     s = list(iterable)
     return chain.from_iterable(combinations(s, r) for r in range(len(s) + 1))
 
+
 def get_powerset_spectrum(power_set):
     return sorted((sum(MASS_DICT[i] for i in chopped)) for chopped in power_set)
+
 
 def get_linear_spectrum(peptide):
     prefix_mass = [0]
@@ -89,22 +93,34 @@ def get_linear_spectrum(peptide):
         prefix_mass.append(prefix_mass[i - 1] + MASS_DICT[peptide[i - 1]])
     linear_spectrum = [0]
     for i in range(len(peptide)):
-        for j in range(i + 1, len(peptide) +1):
+        for j in range(i + 1, len(peptide) + 1):
             linear_spectrum.append(prefix_mass[j] - prefix_mass[i])
     return sorted(linear_spectrum)
 
+
 def get_cyclic_spectrum(peptide):
-        prefix_mass = [0]
-        for i in range(1, len(peptide) + 1):
-            prefix_mass.append(prefix_mass[i - 1] + MASS_DICT[peptide[i - 1]])
-        peptide_mass = sum(MASS_DICT[peptide[x]] for x in range(len(peptide)))
-        cyclical_spectrum = [0]
-        for i in range(len(peptide)):
-            for j in range(i + 1, len(peptide) +1):
-                cyclical_spectrum.append(prefix_mass[j] - prefix_mass[i])
-                if i > 0 and j < len(peptide):
-                    cyclical_spectrum.append(peptide_mass - (prefix_mass[j] - prefix_mass[i]))
-        return sorted(cyclical_spectrum)
+    prefix_mass = [0]
+    for i in range(1, len(peptide) + 1):
+        prefix_mass.append(prefix_mass[i - 1] + MASS_DICT[peptide[i - 1]])
+    peptide_mass = sum(MASS_DICT[peptide[x]] for x in range(len(peptide)))
+    cyclical_spectrum = [0]
+    for i in range(len(peptide)):
+        for j in range(i + 1, len(peptide) + 1):
+            cyclical_spectrum.append(prefix_mass[j] - prefix_mass[i])
+            if i > 0 and j < len(peptide):
+                cyclical_spectrum.append(peptide_mass - (prefix_mass[j] - prefix_mass[i]))
+    return sorted(cyclical_spectrum)
+
+
+@lru_cache(None)
+def count_linear_sequences(mass):
+    if mass == 0:
+        return 1
+    elif mass < 0:
+        return 0
+    else:
+        return sum(count_linear_sequences(mass - i) for i in MASS_LIST)
+
 
 if __name__ == '__main__':
-    print(' '.join(str(x) for x in get_cyclic_spectrum(('KIHPNQMTFTVI'))))
+    print(count_linear_sequences(1354))
