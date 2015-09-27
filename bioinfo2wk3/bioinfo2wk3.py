@@ -1,5 +1,8 @@
 __author__ = 'memery'
 
+import difflib
+from itertools import chain, combinations
+
 
 def translate_protein(rna_string):
     rna_dict = TRANSLATE_DICT
@@ -46,10 +49,62 @@ def encode_peptide(dna, peptide):
             encoding_dna.append(dna[i:i + 3 * len(peptide)])
     return encoding_dna
 
+
 def number_of_cyclopeptides(n):
-    return n * (n-1)
+    return n * (n - 1)
 
 
+MASS_DICT = {'G': 57,
+             'A': 71,
+             'S': 87,
+             'P': 97,
+             'V': 99,
+             'T': 101,
+             'C': 103,
+             'I': 113,
+             'L': 113,
+             'N': 114,
+             'D': 115,
+             'K': 128,
+             'Q': 128,
+             'E': 129,
+             'M': 131,
+             'H': 137,
+             'F': 147,
+             'R': 156,
+             'Y': 163,
+             'W': 186}
+
+
+def powerset(iterable):
+    s = list(iterable)
+    return chain.from_iterable(combinations(s, r) for r in range(len(s) + 1))
+
+def get_powerset_spectrum(power_set):
+    return sorted((sum(MASS_DICT[i] for i in chopped)) for chopped in power_set)
+
+def get_linear_spectrum(peptide):
+    prefix_mass = [0]
+    for i in range(1, len(peptide) + 1):
+        prefix_mass.append(prefix_mass[i - 1] + MASS_DICT[peptide[i - 1]])
+    linear_spectrum = [0]
+    for i in range(len(peptide)):
+        for j in range(i + 1, len(peptide) +1):
+            linear_spectrum.append(prefix_mass[j] - prefix_mass[i])
+    return sorted(linear_spectrum)
+
+def get_cyclic_spectrum(peptide):
+        prefix_mass = [0]
+        for i in range(1, len(peptide) + 1):
+            prefix_mass.append(prefix_mass[i - 1] + MASS_DICT[peptide[i - 1]])
+        peptide_mass = sum(MASS_DICT[peptide[x]] for x in range(len(peptide)))
+        cyclical_spectrum = [0]
+        for i in range(len(peptide)):
+            for j in range(i + 1, len(peptide) +1):
+                cyclical_spectrum.append(prefix_mass[j] - prefix_mass[i])
+                if i > 0 and j < len(peptide):
+                    cyclical_spectrum.append(peptide_mass - (prefix_mass[j] - prefix_mass[i]))
+        return sorted(cyclical_spectrum)
 
 if __name__ == '__main__':
-    print(number_of_cyclopeptides(23856))
+    print(' '.join(str(x) for x in get_cyclic_spectrum(('KIHPNQMTFTVI'))))
